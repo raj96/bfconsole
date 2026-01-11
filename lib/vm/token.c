@@ -3,12 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static uint64_t _n_tokens;
-
 #ifdef DEBUG
 char op_to_char(Operator op) {
 	switch (op) {
-		case OP_PLUS: return '+';
+ 		case OP_PLUS: return '+';
 		case OP_MINUS: return '-';
 		case OP_LT: return '<';
 		case OP_GT: return '>';
@@ -20,28 +18,49 @@ char op_to_char(Operator op) {
 	}
 }
 
-void tokens_print(Token *_tokens, int *_n_tokens) {
+void tokens_print(Token *_tokens, int _n_tokens) {
 	int i = 0;
-	for (; i < _n_tokens-1; i++) {
-		printf("%c{%lu} | ", op_to_char(_tokens[i].op), _tokens[i].reps);
+	for (; i < _n_tokens; i++) {
+		if (_tokens[i].op != OP_LSQB && _tokens[i].op != OP_RSQB) {
+			printf("token: %c\treps: %lu\n ", op_to_char(_tokens[i].op), _tokens[i].meta.reps);
+		} else {
+			printf("token: %c\tjmp: %lu\n", op_to_char(_tokens[i].op), _tokens[i].meta.jmp);
+		}
 	}
-	printf("%c{%lu}\n", op_to_char(_tokens[i].op), _tokens[i].reps);
 }
 #endif
 
-bool Token_populate(char *file_path, Token *_tokens, int *_n_tokens) {
+void _token_calculate_jmp(Token *_tokens, int _n_tokens) {
+	int64_t lp = 0, rp = _n_tokens - 1;
+
+	while (lp < _n_tokens && _tokens[lp].op != OP_LSQB) lp++;
+	while (rp >= 0 && _tokens[rp].op != OP_RSQB) rp--;
+	
+	while (lp < rp) {
+		_tokens[lp].meta.jmp = --rp;
+		_tokens[rp].meta.jmp = ++lp;
+		while (lp < _n_tokens && _tokens[lp].op != OP_LSQB) lp++;
+		while (rp >= 0 && _tokens[rp].op != OP_RSQB) rp--;
+	}
+}
+
+bool token_populate(char *file_path, Token **tokens, int *n_tokens) {
+	int _n_tokens = 0;
+	Token *_tokens = NULL;
+
 	FILE *fp = fopen(file_path, "r");
 	if (fp == NULL) {
-			return false;
+		printf("Could not open file: %s\n", file_path);
+		return false;
 	}
 
 	int bracket_match = 0;
 	char c;
 	Operator op;
-	while (feof(fp) == 0) {
-		fread(&c, sizeof(char), 1, fp);
+
+	while (fread(&c, sizeof(char), 1, fp) >= 1) {
 		if (op == OP_QUOTE) {
-				op = OP_INVALID;
+			op = OP_INVALID;
 		} else {
 			switch(c) {
 				case '+':
@@ -78,18 +97,16 @@ bool Token_populate(char *file_path, Token *_tokens, int *_n_tokens) {
 					break;
 			}
 		}
-		
-		if (bracket_match != 0) {
-			printf("Unmatched square brackets\n");
-			free(_tokens);
-			fclose(fp);
-			return false;
+
+
+		if (bracket_match < 0) {
+			goto unmatched_brackets_found;
 		}
 
 		if (op != OP_INVALID && op != OP_QUOTE) {
 			if (_n_tokens > 0) {
-				if (op == _tokens[_n_tokens-1].op) {
-					_tokens[_n_tokens-1].reps++;
+				if (op == _tokens[_n_tokens-1].op && op != OP_LSQB && op != OP_RSQB) {
+					_tokens[_n_tokens-1].meta.reps++;
 				} else {
 					goto create_new_token;
 				}
@@ -99,11 +116,24 @@ create_new_token:
 				_tokens = (Token *)realloc(_tokens, sizeof(Token) * _n_tokens);
 				_tokens[_n_tokens-1] = (Token){
 					.op = op,
-					.reps = 1,
+					.meta.reps = 1,
 				};
 			}
 		}
 	}
+
+	if (bracket_match != 0) {
+unmatched_brackets_found:
+		printf("Unmatched square brackets: %d\n", bracket_match);
+		free(_tokens);
+		fclose(fp);
+		return false;
+	}
+
+	_token_calculate_jmp(_tokens, _n_tokens);	
+
+	*n_tokens = _n_tokens;
+	*tokens = _tokens;
 
 	return true;
 }

@@ -17,12 +17,17 @@ typedef enum {
 	OP_INVALID,
 } Operator;
 
+typedef union {
+	uint64_t reps;
+	uint64_t jmp;
+} TokenMeta;
+
 typedef struct {
 	Operator op;
-	uint64_t reps;
+	TokenMeta meta;
 } Token;
 
-bool token_populate(char *file_path, Token *tokens, int *n_token);
+bool token_populate(char *file_path, Token **tokens, int *n_token);
 void token_free(Token *tokens);
 
 #ifdef DEBUG

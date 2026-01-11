@@ -1,7 +1,7 @@
 PROJECT=bfconsole
 
 CC=clang
-CFLAGS+=-Wall -Wextra -Werror
+CFLAGS+=-Wall -Wextra -Werror -DDEBUG=1
 IFLAGS=-Iinclude
 LFLAGS=
 
@@ -19,3 +19,4 @@ lib/%.c: include/%.h
 .PHONY:
 clean:
 	rm -rf $(OBJS) $(PROJECT)
+
