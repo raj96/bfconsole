@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "vm/token.h"
+#include "vm/executor.h"
 
-int main() {
+int main(void) {
 	Token *tokens;
 	int n;
 	if (!token_populate("test.bf", &tokens, &n)) { 
@@ -11,7 +12,9 @@ int main() {
 #ifdef DEBUG
 	tokens_print(tokens, n);
 #endif
-	token_free(tokens);
+	executor_init(tokens, n);
+	executor_run();
+	executor_free();
 	return 0;
 }
 

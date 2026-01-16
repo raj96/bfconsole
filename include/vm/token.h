@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 typedef enum {
-	OP_PLUS,
+	OP_PLUS = 0,
 	OP_MINUS,
 	OP_LT,
 	OP_GT,
@@ -15,6 +15,7 @@ typedef enum {
 	OP_COMMA,
 	OP_QUOTE,
 	OP_INVALID,
+	OP_COUNT, // Total number of executors defined (see include/vm/executor.h)
 } Operator;
 
 typedef union {

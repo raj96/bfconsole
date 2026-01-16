@@ -1,12 +1,13 @@
 PROJECT=bfconsole
 
 CC=clang
-CFLAGS+=-Wall -Wextra -Werror -DDEBUG=1
+CFLAGS+=-Wall -Wextra -Werror -pedantic
 IFLAGS=-Iinclude
 LFLAGS=
 
 OBJS=main.o
 OBJS+=lib/vm/token.o
+OBJS+=lib/vm/executor.o
 
 $(PROJECT): $(OBJS)
 	$(CC) $(CFLAGS) $(LFLAGS) $^ -o $@
