@@ -16,7 +16,6 @@ typedef struct {                                            \
 } stack_##T;                                                \
                                                             \
 bool stack_##T##_init(stack_##T *stk) {                     \
-    stk = (stack_##T *)malloc(sizeof(stack_##T));           \
     stk->data = (T *)malloc(sizeof(T) * STACK_BLOCK_MEM);   \
     if (stk->data == NULL) {                                \
         return false;                                       \
