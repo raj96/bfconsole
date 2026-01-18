@@ -30,6 +30,7 @@ void tokens_print(Token *_tokens, int _n_tokens) {
 }
 #endif
 
+// TODO: Fix non-nested brackets
 void _token_calculate_jmp(Token *_tokens, int _n_tokens) {
 	int64_t lp = 0, rp = _n_tokens - 1;
 

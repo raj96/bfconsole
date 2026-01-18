@@ -1,7 +1,7 @@
 PROJECT=bfconsole
 
 CC=clang
-CFLAGS+=-Wall -Wextra -Werror -pedantic
+CFLAGS=-Wall -Wextra -Werror -pedantic
 IFLAGS=-Iinclude
 LFLAGS=
 
@@ -16,6 +16,10 @@ $(PROJECT): $(OBJS)
 	$(CC) -c $(CFLAGS) $(IFLAGS) $< -o $@
 
 lib/%.c: include/%.h
+
+.PHONY:
+debug: CFLAGS+=-DDEBUG
+debug: $(PROJECT)
 
 .PHONY:
 clean:

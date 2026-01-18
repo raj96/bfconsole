@@ -59,6 +59,10 @@ void ex_dot(void) {
 	printf("%c", vm.heap.mem[vm.mem_ptr]);
 }
 
+void ex_comma(void) {
+	scanf("%c", &vm.heap.mem[vm.mem_ptr]);
+}
+
 static void (*executors[OP_COUNT])(void) = {
 	&ex_plus,
 	&ex_minus,
@@ -67,6 +71,7 @@ static void (*executors[OP_COUNT])(void) = {
 	&ex_lsqb,
 	&ex_rsqb,
 	&ex_dot,
+	&ex_comma,
 };
 
 #ifdef DEBUG
@@ -90,7 +95,7 @@ void _executor_add_mem(void) {
 	if (new_mem == NULL) {
 		// TODO: Handle and return
 	}
-	memset(vm.heap.mem == NULL ? new_mem : vm.heap.mem + vm.heap.cap, 0, EXECUTOR_MEM_BLOCK);	
+	memset(vm.heap.mem + vm.heap.cap, 0, EXECUTOR_MEM_BLOCK);	
 	vm.heap.cap += EXECUTOR_MEM_BLOCK;
 	vm.heap.mem = new_mem;
 }
@@ -98,8 +103,14 @@ void _executor_add_mem(void) {
 void executor_init(Token *tokens, uint64_t token_len) {
 	vm.tokens = tokens;
 	vm.token_len = token_len;
-
-	_executor_add_mem();
+	vm.heap.mem = (uint8_t *)malloc(sizeof(uint8_t) * EXECUTOR_MEM_BLOCK);
+	if (vm.heap.mem == NULL) {
+		printf("Could not allocate memory\n");
+		executor_free();
+		exit(1);
+	}
+	memset(vm.heap.mem, 0, EXECUTOR_MEM_BLOCK);
+	vm.heap.cap += EXECUTOR_MEM_BLOCK;
 }
 
 void executor_run(void) {
@@ -113,6 +124,7 @@ void executor_run(void) {
 	_executor_print();
 #endif
 	}
+	printf("\n");
 }
 
 void executor_free(void) {
