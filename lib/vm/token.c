@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define STACK_IMPL
+#include "utils/stack.h"
+stack_implement(uint64_t)
+
 #ifdef DEBUG
 char op_to_char(Operator op) {
 	switch (op) {
@@ -22,28 +26,62 @@ void tokens_print(Token *_tokens, int _n_tokens) {
 	int i = 0;
 	for (; i < _n_tokens; i++) {
 		if (_tokens[i].op != OP_LSQB && _tokens[i].op != OP_RSQB) {
-			printf("token: %c\treps: %lu\n", op_to_char(_tokens[i].op), _tokens[i].meta.reps);
+			printf("token: %c\treps:\t%lu\t[%d]\n", op_to_char(_tokens[i].op), _tokens[i].meta.reps, i);
 		} else {
-			printf("token: %c\tjmp: %lu\n", op_to_char(_tokens[i].op), _tokens[i].meta.jmp);
+			printf("token: %c\tjmp:\t%lu\t[%d]\n", op_to_char(_tokens[i].op), _tokens[i].meta.jmp, i);
 		}
 	}
 }
 #endif
 
-// TODO: Fix non-nested brackets
-void _token_calculate_jmp(Token *_tokens, int _n_tokens) {
-	int64_t lp = 0, rp = _n_tokens - 1;
-
-	while (lp < _n_tokens && _tokens[lp].op != OP_LSQB) lp++;
-	while (rp >= 0 && _tokens[rp].op != OP_RSQB) rp--;
-	
-	while (lp < rp) {
-		_tokens[lp].meta.jmp = rp;
-		_tokens[rp].meta.jmp = lp;
-		lp++; rp--;
-		while (lp < _n_tokens && _tokens[lp].op != OP_LSQB) lp++;
-		while (rp >= 0 && _tokens[rp].op != OP_RSQB) rp--;
+#ifdef DEBUG
+void print_mems(stack_uint64_t s, int n) {
+	printf("[ ");
+	for (int i = 0; i < n; i++) {
+		printf("%lu ", s.data[i]);
 	}
+	printf("] [%lu]\n", s.ptr);
+}
+#endif
+
+void _token_calculate_jmp(Token *_tokens, int _n_tokens) {
+	// The brackets are already balanced as it's checked in token_populate
+	stack_uint64_t stk = {0};
+	if (!stack_uint64_t_init(&stk)) {
+#ifdef DEBUG
+		printf("stack_uint64_t_init: Failed to allocate memory\n");
+#endif
+		goto cleanup;
+	}
+
+	for (uint64_t i = 0; i < (uint64_t)_n_tokens; i++) {
+		Token t = _tokens[i];
+		if (t.op == OP_LSQB) {
+			if (!stack_uint64_t_push(&stk, i)) {
+#ifdef DEBUG
+				printf("stack_uint64_t_push: Failed to allocate memory\n");
+#endif
+				goto cleanup;
+			}
+#ifdef DEBUG
+			printf("Pushing: %lu\n", i);
+			print_mems(stk, 10);
+#endif
+		} else if (t.op == OP_RSQB) {
+			uint64_t rp_index = i;
+			uint64_t lp_index = stack_uint64_t_pop(&stk);
+#ifdef DEBUG
+			printf("Popped: %lu\n", lp_index);
+			print_mems(stk, 10);
+			printf("lp: %lu, rp: %lu\n", lp_index, rp_index);
+#endif
+			_tokens[rp_index].meta.jmp = lp_index;
+			_tokens[lp_index].meta.jmp = rp_index;
+		}
+	}
+
+cleanup:
+	stack_uint64_t_free(&stk);
 }
 
 bool token_populate(char *file_path, Token **tokens, int *n_tokens) {

@@ -13,7 +13,7 @@ int main(void) {
 	tokens_print(tokens, n);
 #endif
 	executor_init(tokens, n);
-	//executor_run();
+	executor_run();
 	executor_free();
 	return 0;
 }

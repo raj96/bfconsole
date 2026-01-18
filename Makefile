@@ -1,7 +1,7 @@
 PROJECT=bfconsole
 
 CC=clang
-CFLAGS=-Wall -Wextra -Werror -pedantic
+CFLAGS=-O3 -Wall -Wextra -Werror -pedantic
 IFLAGS=-Iinclude
 LFLAGS=
 
