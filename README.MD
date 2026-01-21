@@ -7,9 +7,9 @@ Install clang and make
 Run `make`, this will list the supported recipes
 
 ### Implementation
-- [x] Token parser
-- [x] Token interpretation
-- [ ] VRAM implementation
+- [x] ~~Token parser~~
+- [x] ~~Token interpretation~~
+- [ ] VRAM APIs
 - [ ] Sprite loading
 - [ ] Collision detection
 
