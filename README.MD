@@ -3,7 +3,10 @@
 This is a brainf*ck emulator presented as a console.
 
 ### How to build
-Install clang and make
+Install the following:
+- clang
+- make
+
 Run `make`, this will list the supported recipes
 
 ### Implementation
