@@ -13,7 +13,6 @@ typedef enum {
     OP_RSQB,
     OP_DOT,
     OP_COMMA,
-    OP_QUOTE,
     OP_INVALID,
     OP_COUNT, // Total number of executors defined (see include/vm/executor.h)
 } Operator;

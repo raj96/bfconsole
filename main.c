@@ -2,10 +2,14 @@
 #include "vm/token.h"
 #include "vm/executor.h"
 
-int main(void) {
+int main(int argc, char **argv) {
+    if (argc <= 1) {
+        printf("Usage: bfconsole <bf source file>\n");
+        return 1;
+    }
     Token *tokens;
     int n;
-    if (!token_populate("test.bf", &tokens, &n)) { 
+    if (!token_populate(argv[1], &tokens, &n)) { 
         printf("Population failed\n");
         return 1; 
     }

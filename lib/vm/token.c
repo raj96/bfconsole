@@ -99,51 +99,43 @@ bool token_populate(char *file_path, Token **tokens, int *n_tokens) {
     Operator op;
 
     while (fread(&c, sizeof(char), 1, fp) >= 1) {
-        if (op == OP_QUOTE) {
-            op = OP_INVALID;
-        } else {
-            switch(c) {
-                case '+':
-                    op = OP_PLUS;
-                    break;
-                case '-':
-                    op = OP_MINUS;
-                    break;
-                case '<':
-                    op = OP_LT;
-                    break;
-                case '>':
-                    op = OP_GT;
-                    break;
-                case '[':
-                    op = OP_LSQB;
-                    bracket_match++;
-                    break;
-                case ']':
-                    op = OP_RSQB;
-                    bracket_match--;
-                    break;
-                case '.':
-                    op = OP_DOT;
-                    break;
-                case ',':
-                    op = OP_COMMA;
-                    break;
-                case '"':
-                    op = OP_QUOTE;
-                    break;
-                default:
-                    op = OP_INVALID;
-                    break;
-            }
+        switch(c) {
+            case '+':
+                op = OP_PLUS;
+                break;
+            case '-':
+                op = OP_MINUS;
+                break;
+            case '<':
+                op = OP_LT;
+                break;
+            case '>':
+                op = OP_GT;
+                break;
+            case '[':
+                op = OP_LSQB;
+                bracket_match++;
+                break;
+            case ']':
+                op = OP_RSQB;
+                bracket_match--;
+                break;
+            case '.':
+                op = OP_DOT;
+                break;
+            case ',':
+                op = OP_COMMA;
+                break;
+            default:
+                op = OP_INVALID;
+                break;
         }
-
 
         if (bracket_match < 0) {
             goto unmatched_brackets_found;
         }
 
-        if (op != OP_INVALID && op != OP_QUOTE) {
+        if (op != OP_INVALID) {
             if (_n_tokens > 0) {
                 if (op == _tokens[_n_tokens-1].op && op != OP_LSQB && op != OP_RSQB) {
                     _tokens[_n_tokens-1].meta.reps++;

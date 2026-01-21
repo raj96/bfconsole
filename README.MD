@@ -1,5 +1,15 @@
 # bfconsole
 ### Description
 This is a brainf*ck emulator presented as a console.
-<More to be added>
+
+### How to build
+Install clang and make
+Run `make`, this will list the supported recipes
+
+### Implementation
+- [x] Token parser
+- [x] Token interpretation
+- [ ] VRAM implementation
+- [ ] Sprite loading
+- [ ] Collision detection
 
